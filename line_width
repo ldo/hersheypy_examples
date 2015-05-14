@@ -33,7 +33,7 @@ for line_width in fonts :
     scaled_fonts[line_width] = g.scaled_font
 #end for
 pix_dimensions = \
-    math.ceil(Vector \
+    math.ceil(Vector
       (
             max(font.text_extents(text).x_advance for font in scaled_fonts.values())
         +
