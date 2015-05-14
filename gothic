@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+#+
+# HersheyPy example: demo of the various “gothic” fonts.
+#
+# Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
+# script is licensed CC0
+# <https://creativecommons.org/publicdomain/zero/1.0/>; do with it
+# what you will.
+#-
+
+import sys
+import os
+import math
+import qahirah as qah
+from qahirah import \
+    CAIRO, \
+    Colour, \
+    Vector
+import hershey_font
+
+fonts = dict \
+  (
+    (name, hershey_font.load(name, line_width = 0.02))
+    for name in ("gothiceng", "gothicger", "gothicita")
+    # "gothgbt" similar to "gothiceng"
+    # "gothgrt" similar to "gothicger"
+    # "gothitt" similar to "gothicita"
+  )
+margin = Vector(10, 10)
+text = "Lorem Ipsum Dolor Sit Amet"
+label_format = "{}: "
+g = qah.Context.create_for_dummy()
+g.select_font_face("sans-serif", CAIRO.FONT_SLANT_NORMAL, CAIRO.FONT_WEIGHT_BOLD)
+g.set_font_size(24)
+label_font = g.scaled_font
+label_width = 0
+scaled_fonts = {}
+for name in fonts :
+    g.scaled_font = label_font
+    label_width = max(label_width, g.text_extents(label_format.format(name)).x_advance)
+    g.set_font_size(96)
+    g.font_face = fonts[name]
+    scaled_fonts[name] = g.scaled_font
+#end for
+pix_dimensions = \
+    math.ceil(Vector
+      (
+            label_width
+        +
+            max(font.text_extents(text).x_advance for font in scaled_fonts.values())
+        +
+            2 * margin.x,
+            sum(font.font_extents.height for font in scaled_fonts.values())
+        +
+            margin.y * (len(fonts) + 1)
+      ))
+pix = qah.ImageSurface.create(CAIRO.FORMAT_RGB24, pix_dimensions)
+g = \
+    (qah.Context.create(pix)
+        .set_source_colour(Colour.grey(1))
+        .paint()
+        .set_source_colour(Colour.grey(0))
+    )
+pos = margin
+for name in sorted(fonts.keys()) :
+    display_font = scaled_fonts[name]
+    g.scaled_font = label_font
+    g.move_to(pos + Vector(0, display_font.font_extents.height / 2 + (g.font_extents.ascent - g.font_extents.descent) / 2))
+    g.show_text(label_format.format(name))
+    g.scaled_font = scaled_fonts[name]
+    g.move_to(pos + Vector(label_width, g.font_extents.ascent))
+    g.show_text(text)
+    pos += Vector(0, margin.y + g.font_extents.height)
+#end for
+pix.write_to_png("{}.png".format(os.path.basename(sys.argv[0])))
