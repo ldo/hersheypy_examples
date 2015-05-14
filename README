@@ -1,0 +1,11 @@
+Here are some examples of the use of [HersheyPy](https://github.com/ldo/hersheypy),
+for accessing the Hershey fonts from Python 3 via Cairo.
+
+Each example script generates its output to a PNG file with the same
+basename as the script. Thus, to run a script *script* and see its
+output, you could do something like
+
+> ./*script* && display *script*.png
+
+Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
+2015 May 14
