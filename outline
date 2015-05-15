@@ -1,0 +1,116 @@
+#!/usr/bin/python3
+#+
+# HersheyPy example: demo of rendering in outline style.
+#
+# Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
+# script is licensed CC0
+# <https://creativecommons.org/publicdomain/zero/1.0/>; do with it
+# what you will.
+#-
+
+import sys
+import os
+import math
+import qahirah as qah
+from qahirah import \
+    CAIRO, \
+    Colour, \
+    Vector
+import hershey_font
+
+font_names = ("rowmans", "rowmand", "rowmant")
+
+thick = 0.1
+inner_thick = (0.9, 0.5, 0.1, 0.05) # relative thicknesses of inner hollow to try
+fonts = {}
+for name in font_names :
+    fonts[name] = \
+        {
+            "thick" : hershey_font.load(name, line_width = thick),
+            "thin" :
+                dict
+                  (
+                    (frac, hershey_font.load(name, line_width = frac * thick))
+                    for frac in inner_thick
+                  ),
+        }
+#end for
+margin = Vector(10, 10)
+text = "Lorem Ipsum Dolor Sit Amet"
+label_format = "{}, {:.0%}: "
+g = qah.Context.create_for_dummy()
+g.select_font_face("sans-serif", CAIRO.FONT_SLANT_NORMAL, CAIRO.FONT_WEIGHT_BOLD)
+g.set_font_size(24)
+label_font = g.scaled_font
+label_width = 0
+scaled_fonts = {}
+for name in fonts :
+    g.set_font_size(96)
+    g.font_face = fonts[name]["thick"]
+    scaled_fonts[name] = {"thick" : g.scaled_font}
+    thin = {}
+    for frac in fonts[name]["thin"] :
+        label_width = \
+            max \
+              (
+                label_width,
+                label_font.text_extents(label_format.format(name, frac)).x_advance
+              )
+        g.font_face = fonts[name]["thin"][frac]
+        thin[frac] = g.scaled_font
+    #end for
+    scaled_fonts[name]["thin"] = thin
+#end for
+pix_dimensions = \
+    math.ceil(Vector
+      (
+            label_width
+        +
+            max(font["thick"].text_extents(text).x_advance for font in scaled_fonts.values())
+        +
+            2 * margin.x,
+            sum
+              (
+                font["thick"].font_extents.height * len(inner_thick)
+                for font in scaled_fonts.values()
+              )
+        +
+            margin.y * (len(fonts) * len(inner_thick) + 1)
+      ))
+pix = qah.ImageSurface.create(CAIRO.FORMAT_RGB24, pix_dimensions)
+g = \
+    (qah.Context.create(pix)
+        .set_source_colour(Colour.grey(1))
+        .set_operator(CAIRO.OPERATOR_SOURCE)
+        .paint()
+    )
+pos = margin
+for name in font_names :
+    display_font = scaled_fonts[name]
+    for frac in reversed(sorted(display_font["thin"].keys())) :
+        g.source_colour = Colour.grey(0)
+        g.scaled_font = label_font
+        g.move_to \
+          (
+                pos
+            +
+                Vector
+                  (
+                    0,
+                        display_font["thick"].font_extents.height / 2
+                    +
+                        (g.font_extents.ascent - g.font_extents.descent) / 2
+                  )
+          )
+        g.show_text(label_format.format(name, frac))
+        g.scaled_font = display_font["thick"]
+        g.move_to(pos + Vector(label_width, g.font_extents.ascent))
+        g.show_text(text)
+        g.move_to(pos + Vector(label_width, g.font_extents.ascent))
+        g.scaled_font = display_font["thin"][frac]
+        g.source_colour = Colour.grey(1) # erase inner hollow
+        g.show_text(text)
+        pos += Vector(0, margin.y + display_font["thick"].font_extents.height)
+    #end for
+#end for
+pix.write_to_png("{}.png".format(os.path.basename(sys.argv[0])))
