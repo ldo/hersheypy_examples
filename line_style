@@ -20,7 +20,7 @@ import hershey_font
 
 fonts = dict \
   (
-    ((line_dash, line_cap), hershey_font.load("gothicita", line_width = 0.05, line_dash = line_dash, line_cap = line_cap))
+    ((line_dash, line_cap), hershey_font.load("rowmans", line_width = 0.05, line_dash = line_dash, line_cap = line_cap))
     for line_dash in
         (
             ((0.1, 0.1), 0),
