@@ -2,6 +2,10 @@
 #+
 # HersheyPy example: demo of rendering in outline style.
 #
+# The basic technique is to first draw the text with a thick line
+# style, then draw it again in a lighter colour and thinner line style,
+# thereby hollowing out the interiors of the glyphs.
+#
 # Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
 # script is licensed CC0
 # <https://creativecommons.org/publicdomain/zero/1.0/>; do with it
