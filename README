@@ -1,5 +1,7 @@
-Here are some examples of the use of [HersheyPy](https://github.com/ldo/hersheypy),
-for accessing the Hershey fonts from Python 3 via Cairo.
+Here are some examples of the use of HersheyPy
+([GitLab](https://gitlab.com/ldo/hersheypy),
+[GitHub](https://github.com/ldo/hersheypy)), for accessing the Hershey
+fonts from Python 3 via Cairo.
 
 Each example script generates its output to a PNG file with the same
 basename as the script. Thus, to run a script *script* and see its
@@ -11,4 +13,4 @@ Alternatively, you can see the generated output on my [DeviantArt
 account](http://default-cube.deviantart.com/gallery/54390594/HersheyPy-Examples).
 
 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
-2015 May 14
+2017 April 7
